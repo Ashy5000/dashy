@@ -29,7 +29,7 @@ if(turbo) {
 console.log(title);
 
 const configure = () => {
-  if(!prompt("Would you like to configure your settings to perfect your model? (y/n): ") == "y") {
+  if(prompt("Would you like to configure your settings to perfect your model? (y/n): ") == "n") {
     return;
   }
   console.log("You may press enter to skip any one of these configuration settings. The default value is 0 or your previous configuration.");
