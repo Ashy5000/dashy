@@ -112,11 +112,12 @@ const predictNext = (hiddenLayers) => {
   for(let i = 0; i < hiddenLayerResults.length; i++) {
     finalResult += hiddenLayerResults[i];
   }
+  finalResult = finalResult * calibration;
   finalResult -= finalResultBias;
   previousResults.push(finalResult);
   previousResult = finalResult;
   averageResult = getAverageNumberInArray(previousResults);
-  return rounding ? Math.round(finalResult * calibration) : finalResult * calibration;
+  return rounding ? Math.round(finalResult) : finalResult;
 }
 const squaredError = (expected, actual) => {
   return Math.abs(actual - expected) ** 2;
@@ -175,6 +176,9 @@ const showResults = () => {
   for(let i = 0; i < learningSetSize + 5; i++) {
     console.log(predictNext(hiddenLayers));
   }
+  previousResults = [];
+  previousResult = 0;
+  averageResult = 0;
 }
 showResults();
 let configuring = true;
