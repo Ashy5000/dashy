@@ -4,8 +4,9 @@ import create from "prompt-sync";
 const ctx = new chalk.constructor({level: 3});
 
 const prompt = create({sigint: true});
-let actualHiddenLayer = [];
+let hiddenLayers = [];
 let hiddenLayerSize = 0;
+let neuralNetDepth = 0;
 let randRange = 0;
 let finalResultBias = 0;
 let calibration = 0;
@@ -38,6 +39,11 @@ const configure = () => {
     hiddenLayerSize = 10;
     console.log("Hidden layer size set to 10. Use Dashy Turbo for a larger hidden layer.");
   }
+  neuralNetDepth = Number(prompt(chalk.yellow("Enter neural net depth: ")));
+  if(neuralNetDepth > 1 && !turbo) {
+    neuralNetDepth = 1;
+    console.log("Neural net depth set to 1. Use Dashy Turbo for a deeper neural net.");
+  }
   randRange = Number(prompt(chalk.yellow("Enter learning range (controls output calibration and learning speed): "))) || randRange;
   finalResultBias = Number(prompt(chalk.yellow("Enter final neuron bias (number subtracted from final result): "))) || finalResultBias;
   calibration = Number(prompt(chalk.yellow("Enter calibration amount (number multiplied by final result): "))) || calibration;
@@ -50,10 +56,24 @@ const configure = () => {
   return true;
 }
 configure();
+hiddenLayers.push([]);
 for(let i = 0; i < hiddenLayerSize; i++) {
-  actualHiddenLayer.push({
+  hiddenLayers[0].push({
     weights: [0, 0, 1]
   });
+}
+for(let i = 1; i < neuralNetDepth; i++) {
+  hiddenLayers.push([]);
+  let hiddenLayer = hiddenLayers[i];
+  for(let j = 0; j < hiddenLayerSize; j++) {
+    let neuron = {
+      weights: []
+    };
+    for(let k = 0; k < hiddenLayerSize; k++) {
+      neuron.weights.push(0);
+    }
+    hiddenLayer.push(neuron);
+  }
 }
 
 const getAverageNumberInArray = (array) => {
@@ -65,14 +85,28 @@ let previousResults = [];
 let previousResult = 0;
 let averageResult = 0;
 
-const predictNext = (hiddenLayer) => {
+const predictNext = (hiddenLayers) => {
   // console.log("previousResult:", previousResult, "averageResult:", averageResult, "previousResults.length:", previousResults.length);
   let hiddenLayerResults = [];
-  for(let i = 0; i < hiddenLayer.length; i++) {
-    let neuron = hiddenLayer[i];
+  let initialHiddenLayer = hiddenLayers[0];
+  for(let i = 0; i < initialHiddenLayer.length; i++) {
+    let neuron = initialHiddenLayer[i];
     let hiddenLayerResult = (neuron.weights[0] * previousResult) + (neuron.weights[1] * averageResult) + (neuron.weights[2] * previousResults.length);
     // console.log("hiddenLayerResult:", hiddenLayerResult);
     hiddenLayerResults.push(hiddenLayerResult);
+  }
+  for(let i = 1; i < hiddenLayers.length; i++) {
+    let currentHiddenLayer = hiddenLayers[i];
+    let hiddenLayerResultsCopy = hiddenLayerResults;
+    hiddenLayerResults = [];
+    for(let j = 0; j < currentHiddenLayer.length; j++) {
+      let neuron = currentHiddenLayer[j];
+      let hiddenLayerResult = 0;
+      for(let k = 0; k < hiddenLayerResultsCopy.length; k++) {
+        hiddenLayerResult += (neuron.weights[k] * hiddenLayerResultsCopy[k])
+      }
+      hiddenLayerResults.push(hiddenLayerResult);
+    }
   }
   let finalResult = 0;
   for(let i = 0; i < hiddenLayerResults.length; i++) {
@@ -87,13 +121,13 @@ const predictNext = (hiddenLayer) => {
 const squaredError = (expected, actual) => {
   return Math.abs(actual - expected) ** 2;
 };
-const test = (testingHiddenLayer, y) => {
+const test = (testingHiddenLayers, y) => {
   previousResults = [];
   previousResult = 0;
   averageResult = 0;
   let totalSquaredError = 0;
   for(let j = 0; j < y.length; j++) {
-    let prediction = predictNext(testingHiddenLayer);
+    let prediction = predictNext(testingHiddenLayers);
     previousResults.push(prediction);
     previousResult = prediction;
     averageResult = getAverageNumberInArray(previousResults);
@@ -105,22 +139,25 @@ const test = (testingHiddenLayer, y) => {
 const learn = (rounds, y) => {
   let results = [];
   for(let i = 0; i < rounds; i++) {
-    let testingHiddenLayer = actualHiddenLayer;
-    for(let j = 0; j < testingHiddenLayer.length; j++) {
-      let neuron = testingHiddenLayer[j];
-      for(let k = 0; k < neuron.weights.length; k++) {
-        neuron.weights[k] += (Math.random() * randRange) - (randRange / 2);
+    let testingHiddenLayers = hiddenLayers;
+    for(let j = 0; j < testingHiddenLayers.length; j++) {
+      let testingHiddenLayer = testingHiddenLayers[j]
+      for(let k = 0; k < testingHiddenLayer.length; k++) {
+        let neuron = testingHiddenLayer[k];
+        for(let l = 0; l < neuron.weights.length; l++) {
+          neuron.weights[l] += (Math.random() * randRange) - (randRange / 2);
+        }
       }
     }
-    let totalSquaredError = test(testingHiddenLayer, y);
+    let totalSquaredError = test(testingHiddenLayers, y);
     let meanSquaredError = totalSquaredError / y.length;
     results.push({
       "id": i,
-      "hiddenLayer": testingHiddenLayer,
+      "hiddenLayer": testingHiddenLayers,
       "meanSquaredError": meanSquaredError
     });
-    if(meanSquaredError < test(actualHiddenLayer, y) / y.length) {
-      actualHiddenLayer = testingHiddenLayer;
+    if(meanSquaredError < test(hiddenLayers, y) / y.length) {
+      hiddenLayers = testingHiddenLayers;
     }
   }
   return results;
@@ -136,7 +173,7 @@ learn(learningRounds, learningSet);
 console.log("Your results:");
 const showResults = () => {
   for(let i = 0; i < learningSetSize + 5; i++) {
-    console.log(predictNext(actualHiddenLayer));
+    console.log(predictNext(hiddenLayers));
   }
 }
 showResults();
