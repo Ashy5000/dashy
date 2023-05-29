@@ -4,6 +4,16 @@ import create from "prompt-sync";
 const ctx = new chalk.constructor({level: 3});
 
 const prompt = create({sigint: true});
+
+let turbo = false;
+if(prompt("Do you want to use Dashy Turbo? (y/n) ") == "y") {
+  if(prompt("Please enter access code: ") == "1701") {
+    turbo = true;
+  } else {
+    console.log(chalk.red("Access code not recognized. Proceeding with non-Turbo version."));
+  }
+}
+
 let hiddenLayers = [];
 let hiddenLayerSize = 0;
 let neuralNetDepth = 0;
@@ -12,16 +22,8 @@ let finalResultBias = 0;
 let calibration = 0;
 let learningRounds = 0;
 let rounding = false;
-
-let turbo = false;
-
-if(prompt("Do you want to use Dashy Turbo? (y/n) ") == "y") {
-  if(prompt("Please enter access code: ") == "1701") {
-    turbo = true;
-  } else {
-    console.log(chalk.red("Access code not recognized. Proceeding with non-Turbo version."));
-  }
-}
+let useSamples = false;
+let samplesPerUnit = turbo ? 3 : 2;
 
 let title = chalk.green("DASHY");
 if(turbo) {
@@ -52,10 +54,11 @@ const configure = () => {
     learningRounds = 10;
     console.log("Number of learning rounds set to 10. Use Dashy Turbo for more learning rounds.");
   }
-  rounding = prompt(chalk.yellow("Would you like to enable output rounding? (y/n): ")) == "y";
+  rounding = prompt(chalk.green("Would you like to enable output rounding? (y/n): ")) == "y";
   return true;
 }
 configure();
+useSamples = prompt(chalk.green("Would you like to divide your training data into samples? Note: Only use if your function does not contain curves. (y/n): ")) == "y";
 hiddenLayers.push([]);
 for(let i = 0; i < hiddenLayerSize; i++) {
   hiddenLayers[0].push({
@@ -132,7 +135,7 @@ const test = (testingHiddenLayers, y) => {
     previousResults.push(prediction);
     previousResult = prediction;
     averageResult = getAverageNumberInArray(previousResults);
-    let error = squaredError(y[j], prediction)
+    let error = squaredError(y[j], prediction);
     totalSquaredError += squaredError(y[j], prediction);
   }
   return totalSquaredError;
@@ -164,11 +167,41 @@ const learn = (rounds, y) => {
   return results;
 };
 
-let learningSet = [];
+let inputLearningSet = [];
 let learningSetSize = Number(prompt(chalk.yellow("Enter training set size: ")))
 for(let i = 0; i < learningSetSize; i++) {
-  learningSet.push(Number(prompt(chalk.green(`Value #${i + 1}- `))));
+  inputLearningSet.push(Number(prompt(chalk.green(`Value #${i + 1}- `))));
 }
+
+const getSamplesBetween = (a, b, samplesPerUnit) => {
+  // you could add some stuff here to validate the inputs
+  const incrementSize = (b - a) / samplesPerUnit;
+  let sample = 1;
+  let result = [];
+  while (sample < samplesPerUnit) {
+    result.push(a + (incrementSize * sample));
+    sample++;
+  }
+  return result;
+}
+
+const addSamples = (arr) => {
+  let resultArr = [];
+  for(let i = 0; i < arr.length; i++) {
+    if(i != arr.length - 1) {
+      resultArr = [...resultArr, arr[i], ...getSamplesBetween(arr[i], arr[i + 1], samplesPerUnit)];
+    } else {
+      resultArr = [...resultArr, arr[i]];
+    }
+  }
+  return resultArr;
+}
+
+let learningSet = [];
+if(useSamples) {
+  learningSet = addSamples(inputLearningSet);
+}
+console.log(learningSet);
 
 learn(learningRounds, learningSet);
 console.log("Your results:");
