@@ -1,19 +1,3 @@
-import chalk from "chalk";
-import create from "prompt-sync";
-
-const ctx = new chalk.constructor({level: 3});
-
-const prompt = create({sigint: true});
-
-let turbo = false;
-if(prompt("Do you want to use Dashy Turbo? (y/n) ") == "y") {
-  if(prompt("Please enter access code: ") == "1701") {
-    turbo = true;
-  } else {
-    console.log(chalk.red("Access code not recognized. Proceeding with non-Turbo version."));
-  }
-}
-
 let hiddenLayers = [];
 let hiddenLayerSize = 0;
 let neuralNetDepth = 0;
@@ -23,59 +7,34 @@ let calibration = 0;
 let learningRounds = 0;
 let rounding = false;
 let useSamples = false;
-let samplesPerUnit = turbo ? 3 : 2;
+let samplesPerUnit = 0;
 
-let title = chalk.green("DASHY");
-if(turbo) {
-  title += " " + chalk.bgWhite(chalk.red("T") + chalk.hex('#FFA500')("U") + chalk.yellow("R") + chalk.green("B") + chalk.blue("O"));
-}
-console.log(title);
-
-const configure = () => {
-  if(prompt("Would you like to configure your settings to perfect your model? (y/n): ") == "n") {
-    return;
-  }
-  console.log("You may press enter to skip any one of these configuration settings. The default value is 0 or your previous configuration.");
-  hiddenLayerSize = Number(prompt(chalk.yellow("Enter hidden layer size: "))) || hiddenLayerSize;
-  if(hiddenLayerSize > 10 && !turbo) {
-    hiddenLayerSize = 10;
-    console.log("Hidden layer size set to 10. Use Dashy Turbo for a larger hidden layer.");
-  }
-  neuralNetDepth = Number(prompt(chalk.yellow("Enter neural net depth: ")));
-  if(neuralNetDepth > 1 && !turbo) {
-    neuralNetDepth = 1;
-    console.log("Neural net depth set to 1. Use Dashy Turbo for a deeper neural net.");
-  }
-  randRange = Number(prompt(chalk.yellow("Enter learning range (controls output calibration and learning speed): "))) || randRange;
-  finalResultBias = Number(prompt(chalk.yellow("Enter final neuron bias (number subtracted from final result): "))) || finalResultBias;
-  calibration = Number(prompt(chalk.yellow("Enter calibration amount (number multiplied by final result): "))) || calibration;
-  learningRounds = Number(prompt(chalk.yellow("Enter number of learning rounds: "))) || learningRounds;
-  if(learningRounds > 10 && !turbo) {
-    learningRounds = 10;
-    console.log("Number of learning rounds set to 10. Use Dashy Turbo for more learning rounds.");
-  }
-  rounding = prompt(chalk.green("Would you like to enable output rounding? (y/n): ")) == "y";
-  return true;
-}
-configure();
-useSamples = prompt(chalk.green("Would you like to divide your training data into samples? Note: Only use if your function does not contain curves. (y/n): ")) == "y";
 hiddenLayers.push([]);
-for(let i = 0; i < hiddenLayerSize; i++) {
-  hiddenLayers[0].push({
-    weights: [0, 0, 1]
-  });
-}
-for(let i = 1; i < neuralNetDepth; i++) {
-  hiddenLayers.push([]);
-  let hiddenLayer = hiddenLayers[i];
-  for(let j = 0; j < hiddenLayerSize; j++) {
-    let neuron = {
-      weights: []
-    };
-    for(let k = 0; k < hiddenLayerSize; k++) {
-      neuron.weights.push(0);
+
+const reset = () => {
+  previousResults = [];
+  previousResult = 0;
+  averageResult = 0;
+};
+
+const generateNeuralNet = () => {
+  for(let i = 0; i < hiddenLayerSize; i++) {
+    hiddenLayers[0].push({
+      weights: [0, 0, 1]
+    });
+  }
+  for(let i = 1; i < neuralNetDepth; i++) {
+    hiddenLayers.push([]);
+    let hiddenLayer = hiddenLayers[i];
+    for(let j = 0; j < hiddenLayerSize; j++) {
+      let neuron = {
+        weights: []
+      };
+      for(let k = 0; k < hiddenLayerSize; k++) {
+        neuron.weights.push(0);
+      }
+      hiddenLayer.push(neuron);
     }
-    hiddenLayer.push(neuron);
   }
 }
 
@@ -126,9 +85,7 @@ const squaredError = (expected, actual) => {
   return Math.abs(actual - expected) ** 2;
 };
 const test = (testingHiddenLayers, y) => {
-  previousResults = [];
-  previousResult = 0;
-  averageResult = 0;
+  reset();
   let totalSquaredError = 0;
   for(let j = 0; j < y.length; j++) {
     let prediction = predictNext(testingHiddenLayers);
@@ -141,6 +98,7 @@ const test = (testingHiddenLayers, y) => {
   return totalSquaredError;
 };
 const learn = (rounds, y) => {
+  reset();
   let results = [];
   for(let i = 0; i < rounds; i++) {
     let testingHiddenLayers = hiddenLayers;
@@ -168,10 +126,6 @@ const learn = (rounds, y) => {
 };
 
 let inputLearningSet = [];
-let learningSetSize = Number(prompt(chalk.yellow("Enter training set size: ")))
-for(let i = 0; i < learningSetSize; i++) {
-  inputLearningSet.push(Number(prompt(chalk.green(`Value #${i + 1}- `))));
-}
 
 const getSamplesBetween = (a, b, samplesPerUnit) => {
   // you could add some stuff here to validate the inputs
@@ -201,30 +155,69 @@ let learningSet = [];
 if(useSamples) {
   learningSet = addSamples(inputLearningSet);
 }
-console.log(learningSet);
+const learnWithPresets = () => {
+  learn(learningRounds, learningSet);
+}
 
-learn(learningRounds, learningSet);
-console.log("Your results:");
-const showResults = () => {
-  for(let i = 0; i < learningSetSize + 5; i++) {
-    console.log(predictNext(hiddenLayers));
+const showResults = (size, samplesPerUnit) => {
+  let modelResults = [];
+  for(let i = 0; i < size; i++) {
+    modelResults.push(predictNext(hiddenLayers));
   }
-  previousResults = [];
-  previousResult = 0;
-  averageResult = 0;
-}
-showResults();
-let configuring = true;
-while(configuring) {
-  configuring = configure();
-  if(configuring) {
-    if(prompt(chalk.red("Would you like to retrain your model? (y/n): ")) == "y") {
-      console.log("Retraining...")
-      learn(learningRounds, learningSet);
+  reset();
+  let finalResults = [];
+  if(useSamples) {
+    for(let i = 0; i < modelResults.length - 5; i += samplesPerUnit - 1) {
+      finalResults.push(modelResults[i]);
     }
-    previousResults = [];
-    previousResult = 0;
-    averageResult = 0;
-    showResults();
+    for(let i = modelResults.length - 5; i < modelResults.length; i++) {
+      finalResults.push(modelResults[i]);
+    }
+  } else {
+    finalResults = modelResults;
   }
+  return finalResults;
 }
+
+const setSamplesPerUnit = (samples) => {
+  samplesPerUnit = samples;
+};
+
+const setHiddenLayerSize = (size) => {
+  hiddenLayerSize = size;
+};
+
+const setNeuralNetDepth = (depth) => {
+  neuralNetDepth = depth;
+};
+
+const setRandRange = (range) => {
+  randRange = range;
+};
+
+const setFinalResultBias = (bias) => {
+  finalResultBias = bias;
+};
+
+const setCalibration = (calibrationAmount) => {
+  calibration = calibrationAmount;
+};
+
+const setLearningRounds = (rounds) => {
+  learningRounds = rounds;
+};
+
+const setRounding = (bool) => {
+  rounding = bool;
+};
+
+const setUseSamples = (bool) => {
+  useSamples = bool;
+};
+
+
+const addInput = (sample) => {
+  inputLearningSet.push(sample);
+};
+
+export {hiddenLayerSize, neuralNetDepth, randRange, finalResultBias, calibration, learningRounds, rounding, samplesPerUnit, useSamples, generateNeuralNet, learnWithPresets, showResults, learn, setSamplesPerUnit, setHiddenLayerSize, setNeuralNetDepth, setRandRange, setFinalResultBias, setCalibration, setLearningRounds, setRounding, setUseSamples, addInput, reset};
