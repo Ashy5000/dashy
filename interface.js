@@ -67,7 +67,7 @@ while(configuring) {
   if(configuring) {
     if(prompt(chalk.red("Would you like to retrain your model? (y/n): ")) == "y") {
       console.log("Retraining...")
-      learn(learningRounds, learningSet);
+      learnWithPresets();
     }
     // reset();
     showResults(learningSetSize + 5);
