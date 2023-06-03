@@ -17,20 +17,20 @@ const reset = () => {
   averageResult = 0;
 };
 
-const generateNeuralNet = () => {
-  for(let i = 0; i < hiddenLayerSize; i++) {
+const generateNeuralNet = (width, depth) => {
+  for(let i = 0; i < width || hiddenLayerSize; i++) {
     hiddenLayers[0].push({
       weights: [0, 0, 1]
     });
   }
-  for(let i = 1; i < neuralNetDepth; i++) {
+  for(let i = 1; i < depth || neuralNetDepth; i++) {
     hiddenLayers.push([]);
     let hiddenLayer = hiddenLayers[i];
-    for(let j = 0; j < hiddenLayerSize; j++) {
+    for(let j = 0; j < width || hiddenLayerSize; j++) {
       let neuron = {
         weights: []
       };
-      for(let k = 0; k < hiddenLayerSize; k++) {
+      for(let k = 0; k < width || hiddenLayerSize; k++) {
         neuron.weights.push(0);
       }
       hiddenLayer.push(neuron);
@@ -215,9 +215,17 @@ const setUseSamples = (bool) => {
   useSamples = bool;
 };
 
-
 const addInput = (sample) => {
   inputLearningSet.push(sample);
 };
 
-export {hiddenLayerSize, neuralNetDepth, randRange, finalResultBias, calibration, learningRounds, rounding, samplesPerUnit, useSamples, generateNeuralNet, learnWithPresets, showResults, learn, setSamplesPerUnit, setHiddenLayerSize, setNeuralNetDepth, setRandRange, setFinalResultBias, setCalibration, setLearningRounds, setRounding, setUseSamples, addInput, reset};
+const setCustomModel = (model) => {
+  hiddenLayers = model;
+};
+
+const setPreviousResults = (results) => {
+  previousResults = results;
+  previousResult = results[results.length - 1];
+  averageResult = getAverageNumberInArray(results);
+};
+export {hiddenLayerSize, neuralNetDepth, randRange, finalResultBias, calibration, learningRounds, rounding, samplesPerUnit, useSamples, hiddenLayers, generateNeuralNet, learnWithPresets, showResults, learn, setSamplesPerUnit, setHiddenLayerSize, setNeuralNetDepth, setRandRange, setFinalResultBias, setCalibration, setLearningRounds, setRounding, setUseSamples, setCustomModel, setPreviousResults, addInput, reset};
