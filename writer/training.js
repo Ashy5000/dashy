@@ -63,7 +63,7 @@ const train = () => {
             break;
         }
         console.log("Building variations...");
-        for(let i = 0; i < 19; i++) {
+        for(let i = 0; i < ((mode != "2") ? 19 : 1); i++) {
             models.push(buildModel(models[0]));
         }
         console.log("Variations built.");
@@ -71,7 +71,7 @@ const train = () => {
             setCustomModel(models[i]);
             if(mode == "1") {
                 console.log(i + 1 + ": " + write(fragment, length));
-            } else {
+            } else if(mode == "2") {
                 useInterface();
             }
         }

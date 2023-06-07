@@ -1,4 +1,4 @@
 {
     "finalResultBias": 0,
-    "calibration": 1
+    "calibration": 0.05
 }
