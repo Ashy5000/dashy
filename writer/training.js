@@ -1,8 +1,9 @@
-import { hiddenLayers, stringToVectors, write, setCustomModel } from "./writer.js";
+import { hiddenLayers, write, setCustomModel } from "./writer.js";
 import create from "prompt-sync";
-import { writeFile } from "node:fs";
+import { writeFile, readFileSync } from "node:fs";
+import { useInterface } from "./writerInterface.js";
 const prompt = create({sigint: true});
-const randRange = 1;
+const randRange = 0.8;
 
 const buildModel = (base) => {
     let testingModel = JSON.parse(JSON.stringify(base));
@@ -17,20 +18,63 @@ const buildModel = (base) => {
     }
     return testingModel;
 };
-
 const train = () => {
     let fragment = prompt("Enter fragment: ");
     let length = Number(prompt("Enter length: "));
+    let mode = prompt("Specify mode (1/2/3/4): ");
     let models = [hiddenLayers];
     while(prompt("Would you like to continue training? (y/n): ") == "y") {
+        if(mode == "3") {
+            let desiredFragment = prompt("Enter desired fragment: ");
+            let matchFound = false;
+            console.log("Building variations...");
+            while(!matchFound) {
+                models.push(buildModel(models[0]));
+                let currentModel = models[models.length - 1];
+                setCustomModel(currentModel);
+                let result = write(fragment, length);
+                if(result == desiredFragment) {
+                    console.log("Match found.");
+                    matchFound = true;
+                    models = [currentModel];
+                }
+            }
+            break;
+        }
+        if(mode == "4") {
+            const trainingData = JSON.parse(readFileSync(process.cwd() + "/ldsm/trainingData.json"));
+            console.log(trainingData);
+            let matchFound = false;
+            while(!matchFound) {
+                models.push(buildModel(models[0]));
+                let currentModel = models[models.length - 1];
+                setCustomModel(currentModel);
+                let mistake = false;
+                for(let i = 0; i < trainingData.length; i++) {
+                    let result = write(trainingData[i].fragment, trainingData[i].length);
+                    if(result != trainingData[i].desired) {
+                        mistake = true;
+                    }
+                }
+                if(!mistake) {
+                    matchFound = true;
+                    models = [currentModel];
+                }
+            }
+            break;
+        }
         console.log("Building variations...");
-        for(let i = 0; i < 9; i++) {
+        for(let i = 0; i < 19; i++) {
             models.push(buildModel(models[0]));
         }
         console.log("Variations built.");
         for(let i = 0; i < models.length; i++) {
             setCustomModel(models[i]);
-            console.log(i + 1 + ": " + write(fragment, length));
+            if(mode == "1") {
+                console.log(i + 1 + ": " + write(fragment, length));
+            } else {
+                useInterface();
+            }
         }
         let chosenModel = models[Number(prompt("Which model would you like to use? ")) - 1];
         models = [chosenModel];

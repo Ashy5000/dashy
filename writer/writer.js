@@ -10,7 +10,7 @@ const setup = () => {
     model = readFileSync(process.cwd() + "/ldsm/model.json");
     modelSettings = JSON.parse(readFileSync(process.cwd() + "/ldsm/modelSettings.json"));
     if(model == "") {
-        generateNeuralNet(10, 10);
+        generateNeuralNet(20, 5);
         model = hiddenLayers;
     } else {
         setCustomModel(JSON.parse(model));
