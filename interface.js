@@ -22,6 +22,7 @@ let title = chalk.green("DASHY");
 if(turbo) {
   title += " " + chalk.bgWhite(chalk.red("T") + chalk.hex('#FFA500')("U") + chalk.yellow("R") + chalk.green("B") + chalk.blue("O"));
 }
+console.log(title);
 
 const configure = () => {
     if(prompt("Would you like to configure your settings to perfect your model? (y/n): ") == "n") {
