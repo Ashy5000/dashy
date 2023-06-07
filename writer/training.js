@@ -46,8 +46,7 @@ const train = () => {
             console.log(trainingData);
             let matchFound = false;
             while(!matchFound) {
-                models.push(buildModel(models[0]));
-                let currentModel = models[models.length - 1];
+                let currentModel = buildModel(models[0]);
                 setCustomModel(currentModel);
                 let mistake = false;
                 for(let i = 0; i < trainingData.length; i++) {

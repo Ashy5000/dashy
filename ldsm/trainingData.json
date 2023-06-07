@@ -2,11 +2,21 @@
     {
         "fragment": "of",
         "length": 1,
-        "desired": "of"
+        "desired": "the"
     },
     {
         "fragment": "that",
         "length": 1,
-        "desired": "that"
+        "desired": "it"
+    },
+    {
+        "fragment": "i",
+        "length": 1,
+        "desired": "have"
+    },
+    {
+        "fragment": "and",
+        "length": 1,
+        "desired": "the"
     }
 ]
