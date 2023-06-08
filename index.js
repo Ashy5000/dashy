@@ -17,20 +17,29 @@ const reset = () => {
   averageResult = 0;
 };
 
-const generateNeuralNet = (width, depth) => {
-  for(let i = 0; i < width || hiddenLayerSize; i++) {
+const generateNeuralNet = (widthParam, depthParam) => {
+  let width = hiddenLayerSize;
+  if (widthParam) {
+    width = widthParam;
+  }
+  let depth = neuralNetDepth;
+  if(depthParam) {
+    depth = depthParam;
+  }
+  console.log(width, depth);
+  for(let i = 0; i < width; i++) {
     hiddenLayers[0].push({
       weights: [0, 0, 1]
     });
   }
-  for(let i = 1; i < depth || neuralNetDepth; i++) {
+  for(let i = 1; i < depth; i++) {
     hiddenLayers.push([]);
     let hiddenLayer = hiddenLayers[i];
-    for(let j = 0; j < width || hiddenLayerSize; j++) {
+    for(let j = 0; j < width; j++) {
       let neuron = {
         weights: []
       };
-      for(let k = 0; k < width || hiddenLayerSize; k++) {
+      for(let k = 0; k < width; k++) {
         neuron.weights.push(0);
       }
       hiddenLayer.push(neuron);
@@ -47,8 +56,7 @@ let previousResults = [];
 let previousResult = 0;
 let averageResult = 0;
 
-const predictNext = (hiddenLayers) => {
-  // console.log("previousResult:", previousResult, "averageResult:", averageResult, "previousResults.length:", previousResults.length);
+const predictNext = (hiddenLayers, options) => {
   let hiddenLayerResults = [];
   let initialHiddenLayer = hiddenLayers[0];
   for(let i = 0; i < initialHiddenLayer.length; i++) {
@@ -79,7 +87,9 @@ const predictNext = (hiddenLayers) => {
   previousResults.push(finalResult);
   previousResult = finalResult;
   averageResult = getAverageNumberInArray(previousResults);
-  return rounding ? Math.round(finalResult) : finalResult;
+  finalResult = options["funnel"] ? Math.sqrt(finalResult) : finalResult;
+  finalResult = rounding ? Math.round(finalResult) : finalResult;
+  return finalResult;
 }
 const squaredError = (expected, actual) => {
   return Math.abs(actual - expected) ** 2;
@@ -159,10 +169,10 @@ const learnWithPresets = () => {
   learn(learningRounds, learningSet);
 }
 
-const showResults = (size, samplesPerUnit) => {
+const showResults = (size, samplesPerUnit, options) => {
   let modelResults = [];
   for(let i = 0; i < size; i++) {
-    modelResults.push(predictNext(hiddenLayers));
+    modelResults.push(predictNext(hiddenLayers, options));
   }
   reset();
   let finalResults = [];

@@ -52,7 +52,7 @@ const configure = () => {
     return true;
 }
 configure();
-generateNeuralNet();
+generateNeuralNet(hiddenLayerSize, neuralNetDepth);
 let learningSetSize = Number(prompt(chalk.yellow("Enter training set size: ")))
 for(let i = 0; i < learningSetSize; i++) {
   addInput(Number(prompt(chalk.green(`Value #${i + 1}- `))));
@@ -61,7 +61,7 @@ for(let i = 0; i < learningSetSize; i++) {
 learnWithPresets();
 
 console.log("Your results:");
-console.log(showResults(learningSetSize + 5, useSamples ? samplesPerUnit : 0).join("\n"));
+console.log(showResults(learningSetSize + 5, useSamples ? samplesPerUnit : 0, { "funnel": false }).join("\n"));
 let configuring = true;
 while(configuring) {
   configuring = configure();

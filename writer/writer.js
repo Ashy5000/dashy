@@ -60,7 +60,7 @@ const vectorsToString = (arr) => {
 
 const write = (prompt, length) => {
     setPreviousResults(stringToVectors(prompt));
-    return vectorsToString(showResults(length));
+    return vectorsToString(showResults(length, 0, { funnel: true }));
 };
 
 export { hiddenLayers, stringToVectors, write, setCustomModel };
