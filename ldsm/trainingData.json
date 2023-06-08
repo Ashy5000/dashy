@@ -5,8 +5,13 @@
         "desired": "have"
     },
     {
-        "fragment": "and",
-        "length": 1,
-        "desired": "the"
+      "fragment": "i have",
+      "length": 1,
+      "desired": "a"
+    },
+    {
+      "fragment": "the have",
+      "length": 1,
+      "desired": "a"
     }
 ]
