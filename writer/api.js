@@ -6,8 +6,17 @@ const port = 3000;
 
 app.use(bodyParser());
 
-app.get("/prompt/ldsm-standard", (req, res) => {
-    res.send(write(req.body.prompt, JSON.parse(req.body.length)));
+app.post("/prompt/ldsm-standard", (req, res) => {
+    console.log("Incoming request!");
+    const data = req.body;
+    console.log("data: " + JSON.stringify(data));
+    const response = {
+        result: write(data.prompt, Number(data.length))
+    };
+    console.log(response);
+    res.json(response);
 });
 
-app.listen(port);
+app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
+});
