@@ -5,12 +5,17 @@
         "desired": "have"
     },
     {
-      "fragment": "i have",
+      "fragment": "i",
+      "length": 2,
+      "desired": "have a"
+    },
+    {
+      "fragment": "the have",
       "length": 1,
       "desired": "a"
     },
     {
-      "fragment": "the have",
+      "fragment": "have",
       "length": 1,
       "desired": "a"
     }

@@ -2,7 +2,9 @@ import { hiddenLayers, write, setCustomModel } from "./writer.js";
 import create from "prompt-sync";
 import { writeFile, readFileSync } from "node:fs";
 import { useInterface } from "./writerInterface.js";
+
 const prompt = create({sigint: true});
+
 const randRange = 0.8;
 
 const buildModel = (base) => {
