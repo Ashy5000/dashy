@@ -17,6 +17,10 @@ app.post("/prompt/ldsm-standard", (req, res) => {
     res.json(response);
 });
 
+app.get("/version", (req, res) => {
+    res.json( {"version": "June 2023"} );
+});
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
