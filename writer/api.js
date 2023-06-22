@@ -21,6 +21,14 @@ app.get("/version", (req, res) => {
     res.json( {"version": "June 2023"} );
 });
 
+app.get("/trainingStage", (req, res) => {
+    res.json( {"trainingStage": [1, 2]});
+});
+
+app.get("/appVersion", (req, res) => {
+    res.json( {"version": "6.23"} );
+});
+
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);
 });
