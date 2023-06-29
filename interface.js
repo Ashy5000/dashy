@@ -52,7 +52,8 @@ const configure = () => {
     return true;
 }
 configure();
-generateNeuralNet();
+console.log("Generating neural network...");
+generateNeuralNet(hiddenLayerSize, neuralNetDepth);
 let learningSetSize = Number(prompt(chalk.yellow("Enter training set size: ")))
 for(let i = 0; i < learningSetSize; i++) {
   addInput(Number(prompt(chalk.green(`Value #${i + 1}- `))));

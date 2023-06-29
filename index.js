@@ -18,19 +18,20 @@ const reset = () => {
 };
 
 const generateNeuralNet = (width, depth) => {
-  for(let i = 0; i < width || hiddenLayerSize; i++) {
+  console.log(width, depth);
+  for(let l = 0; l < width; l++) {
     hiddenLayers[0].push({
       weights: [0, 0, 1]
     });
   }
-  for(let i = 1; i < depth || neuralNetDepth; i++) {
+  for(let i = 1; i <= depth; i++) {
     hiddenLayers.push([]);
     let hiddenLayer = hiddenLayers[i];
-    for(let j = 0; j < width || hiddenLayerSize; j++) {
+    for(let j = 0; j <= width; j++) {
       let neuron = {
         weights: []
       };
-      for(let k = 0; k < width || hiddenLayerSize; k++) {
+      for(let k = 0; k <= width; k++) {
         neuron.weights.push(0);
       }
       hiddenLayer.push(neuron);
