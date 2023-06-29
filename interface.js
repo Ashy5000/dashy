@@ -8,8 +8,10 @@ const prompt = create({sigint: true});
 
 let turbo = false;
 
+const password = process.env["password"] ? process.env["password"] : "1701";
+
 if(prompt("Do you want to use Dashy Turbo? (y/n) ") == "y") {
-  if(prompt("Please enter access code: ") == "1701") {
+  if(prompt("Please enter access code: ") == password) {
     turbo = true;
   } else {
     console.log(chalk.red("Access code not recognized. Proceeding with non-Turbo version."));
