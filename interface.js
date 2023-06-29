@@ -74,6 +74,6 @@ while(configuring) {
       learnWithPresets();
     }
     // reset();
-    showResults(learningSetSize + 5);
+    console.log(showResults(learningSetSize + 5, useSamples ? samplesPerUnit : 0).join("\n"));
   }
 }
