@@ -95,7 +95,9 @@ const evaluate = (lines) => {
     } else if(operation == "<") {
       variables[words[1]] = (Number(variables[words[2]]) < Number(variables[words[3]])) ? "+": "-";
     } else if(operation == "=") {
-      variables[words[1]] = (Number(variables[words[2]]) = Number(variables[words[3]])) ? "+": "-";
+      variables[words[1]] = (Number(variables[words[2]]) == Number(variables[words[3]])) ? "+": "-";
+    } else if(operation == "!") {
+      variables[words[1]] = (variables[words[1]] == "+") ? "-" : "+";
     }
   }
 };

@@ -21,7 +21,8 @@ const generateNeuralNet = (width, depth) => {
   console.log(width, depth);
   for(let l = 0; l < width; l++) {
     hiddenLayers[0].push({
-      weights: [0, 0, 1]
+      weights: [0, 0, 1],
+      bias: 0
     });
   }
   for(let i = 1; i <= depth; i++) {
@@ -56,6 +57,9 @@ const predictNext = (hiddenLayers) => {
     let neuron = initialHiddenLayer[i];
     let hiddenLayerResult = (neuron.weights[0] * previousResult) + (neuron.weights[1] * averageResult) + (neuron.weights[2] * previousResults.length);
     // console.log("hiddenLayerResult:", hiddenLayerResult);
+    if(neuron.bias) {
+      hiddenLayerResult -= neuron.bias;
+    }
     hiddenLayerResults.push(hiddenLayerResult);
   }
   for(let i = 1; i < hiddenLayers.length; i++) {
@@ -110,6 +114,7 @@ const learn = (rounds, y) => {
         for(let l = 0; l < neuron.weights.length; l++) {
           neuron.weights[l] += (Math.random() * randRange) - (randRange / 2);
         }
+        neuron.bias += (Math.random() * randRange) - (randRange / 2);
       }
     }
     let totalSquaredError = test(testingHiddenLayers, y);
@@ -122,6 +127,8 @@ const learn = (rounds, y) => {
     if(meanSquaredError < test(hiddenLayers, y) / y.length) {
       hiddenLayers = testingHiddenLayers;
     }
+    calibration += (Math.random() * randRange) - (randRange / 2);
+    finalResultBias += (Math.random() * (randRange * 10)) - (randRange * 5);
   }
   return results;
 };
