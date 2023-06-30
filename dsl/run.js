@@ -13,6 +13,9 @@ let variables = {};
 let evaluatingIfDepth = 0;
 let codeIfDepth = 0;
 
+let whileDepth = 0;
+let whileConditions = [];
+
 const evaluate = (lines) => {
   for(let i = 0; i < lines.length; i++) {
     if(codeIfDepth > evaluatingIfDepth && codeIfDepth > 0) {
@@ -68,9 +71,31 @@ const evaluate = (lines) => {
       if(words[1] == "+" || (words[1] == "getvar" && variables[words[2]] == "+")) {
         evaluatingIfDepth++;
       }
-    } else if(operation == "close") {
+    } else if(operation == "closeif") {
       codeIfDepth--;
       evaluatingIfDepth--;
+    } else if(operation == "while") {
+      whileDepth++;
+      whileConditions.push(words.slice(1));
+        while(lines[i] != "closewhile") {
+          i++;
+        }
+    } else if(operation == "closewhile") {
+      let condition = whileConditions[whileDepth - 1];
+      if(condition[0] == "+" || (condition[0] == "getvar" && variables[condition[1]] == "+")) {
+        while(lines[i].split(" ")[0] != "while") {
+          i--;
+        }
+      } else {
+        whileDepth--;
+        whileConditions.pop();
+      }
+    } else if(operation == ">") {
+      variables[words[1]] = (Number(variables[words[2]]) > Number(variables[words[3]])) ? "+" : "-";
+    } else if(operation == "<") {
+      variables[words[1]] = (Number(variables[words[2]]) < Number(variables[words[3]])) ? "+": "-";
+    } else if(operation == "=") {
+      variables[words[1]] = (Number(variables[words[2]]) = Number(variables[words[3]])) ? "+": "-";
     }
   }
 };
