@@ -37,6 +37,8 @@ for(let i = 0; i < lines.length; i++) {
       data = JSON.parse(value);
     } else if(variableName == "calibration") {
       setCalibration(Number(value));
+    } else if(variableName == "finalBias") {
+      setFinalResultBias(Number(value));
     }
   } else if(operation == "train") {
     console.log("Training model...");
