@@ -6,8 +6,6 @@ Functions are called using the following syntax, similar of that to bash:
 
 **[function name] [parameter one] [parameter two] ...**
 
-The only function that returns any value is called **getVar**, and it can be used in place of a value for any given function's parameter.
-
 Available functions:
 
 * **init** (0 parameters): initializes the neural net based on the **width** and **depth** variables that can be specified using **set**.
@@ -23,6 +21,14 @@ Available functions:
 * **<** (3 parameters: **a**, **b**, and **c**):  sets **a** to **+** if **b** < **c**. Otherwise, it sets **a** to **-**.
 * **=** (3 parameters: **a**, **b**, and **c**):  sets **a** to **+** if **b** = **c**. Otherwise, it sets **a** to **-**.
 * **!** (1 parameter: **bool**):  sets **bool** to **+** if **bool** = **-**, or to **-** if **bool** = **+**
+* **+** (3 parameters: **a**, **b**, and **c**): Sets **a** to **b** + **c**
+* **-** (3 parameters: **a**, **b**, and **c**): Sets **a** to **b** - **c**
+* **\*** (3 parameters: **a**, **b**, and **c**): Sets **a** to **b** * **c**
+* **/** (3 parameters: **a**, **b**, and **c**): Sets **a** to **b** + **c**
+* **>exp** (2 parameters: **a** and **b**): returns **+** if **a** > **b**, or **-** otherwise.
+* **<exp** (2 parameters: **a** and **b**): returns **+** if **a** < **b**, or **-** otherwise.
+* **=exp** (2 parameters: **a** and **b**): returns **+** if **a** = **b**, or **-** otherwise.
+* **!exp** (1 parameters: **bool**): returns **+** if **bool** is **-**, or **-** if **bool** is **+**.
 
 IMPORTANT: **>**, **<**, **=**, and **!** do not return values, and thus cannot be used in boolean expressions. They instead store their result in a variable. (More details on where the data is stored can be found in the above list.)
 
