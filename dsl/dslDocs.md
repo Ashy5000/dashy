@@ -68,7 +68,7 @@ The control flow in DSL can be implemented using the two keywords **if** and **w
 
 **if [boolean expression]**\
 **[code]**\
-**endif**
+**closeif**
 
 If the boolean expression (either **+**, **-**, or **getvar [variableName]**) evaluates to **+**, the code inside the if statement (between **if** and **endif**) is executed. Otherwise, it is not and the if statement is skipped over.
 
@@ -76,4 +76,4 @@ While loops are similar. They look almost identical to the if statement, but exe
 
 **while [boolean expression]**\
 **[code]**\
-**endwhile**
+**closewhile**

@@ -16,7 +16,22 @@ let codeIfDepth = 0;
 let whileDepth = 0;
 let whileConditions = [];
 
-const evaluate = (lines) => {
+const evaluateExpression = (expression) => {
+  if(expression[0] == "getvar") {
+    return variables[expression[1]];
+  } else if(expression[0] == ">exp") {
+    return variables[expression[1]] > variables[expression[2]] ? "+" : "-";
+  } else if(expression[0] == "<exp") {
+    return variables[expression[1]] < variables[expression[2]] ? "+" : "-";
+  } else if(expression[0] == "=exp") {
+    return variables[expression[1]] = variables[expression[2]] ? "+" : "-";
+  } else if(expression[0] == "!exp") {
+    return !variables[expression[1]] ? "+" : "-";
+  }
+  return expression[0];
+}
+
+const evaluateDSL = (lines) => {
   for(let i = 0; i < lines.length; i++) {
     if(codeIfDepth > evaluatingIfDepth && codeIfDepth > 0) {
       codeIfDepth--;
@@ -24,6 +39,7 @@ const evaluate = (lines) => {
     }
     const words = lines[i].split(" ");
     const operation = words[0];
+    console.log("Operation: " + operation);
     if(operation == "init") {
       console.log("Initializing...");
       generateNeuralNet(hiddenLayerSize, neuralNetDepth);
@@ -58,12 +74,12 @@ const evaluate = (lines) => {
       variables[words[1]] = words[2] != "getvar" ? words[2] : variables[words[3]];
     } else if(operation == "setvar") {
       if(variables[words[1]]) {
-        variables[words[1]] = words[2] != "getvar" ? words[2] : variables[words[2]];
+        variables[words[1]] = evaluateExpression(words.slice(2));
       } else {
-        console.error("ERR: Variable not found");
+        throw new Error("ERR: Variable not found");
       }
     } else if(operation == "log") {
-      console.log(words[1] != "getvar" ? words[1] : variables[words[2]])
+      console.log(evaluateExpression(words.slice(1)));
     } else if(operation == "end") {
       break;
     } else if(operation == "if") {
@@ -77,12 +93,13 @@ const evaluate = (lines) => {
     } else if(operation == "while") {
       whileDepth++;
       whileConditions.push(words.slice(1));
-        while(lines[i] != "closewhile") {
-          i++;
-        }
+      while(lines[i] != "closewhile") {
+        i++;
+      }
+      i--;
     } else if(operation == "closewhile") {
       let condition = whileConditions[whileDepth - 1];
-      if(condition[0] == "+" || (condition[0] == "getvar" && variables[condition[1]] == "+")) {
+      if(evaluateExpression(condition) == "+") {
         while(lines[i].split(" ")[0] != "while") {
           i--;
         }
@@ -98,8 +115,19 @@ const evaluate = (lines) => {
       variables[words[1]] = (Number(variables[words[2]]) == Number(variables[words[3]])) ? "+": "-";
     } else if(operation == "!") {
       variables[words[1]] = (variables[words[1]] == "+") ? "-" : "+";
+    } else if(operation == "+") {
+      variables[words[1]] = (Number(variables[words[2]]) + Number(variables[words[3]]));
+    } else if(operation == "-") {
+      variables[words[1]] = (Number(variables[words[2]]) - Number(variables[words[3]]));
+    } else if(operation == "*") {
+      variables[words[1]] = (Number(variables[words[2]]) * Number(variables[words[3]]));
+    } else if(operation == "/") {
+      variables[words[1]] = (Number(variables[words[2]]) / Number(variables[words[3]]));
+    } else {
+      throw new Error("ERR! Operation not found: " + operation);
     }
   }
 };
-evaluate(lines);
+console.log("Running program...");
+evaluateDSL(lines);
 console.log("Program finished.");
