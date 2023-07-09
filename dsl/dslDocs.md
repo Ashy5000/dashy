@@ -10,14 +10,21 @@ The only function that returns any value is called **getVar**, and it can be use
 
 Available functions:
 
-* **init** (0 parameters): initializes the neural net based on the **width** and **depth** variables that can be set using **set**.
+* **init** (0 parameters): initializes the neural net based on the **width** and **depth** variables that can be specified using **set**.
 * **train** (0 parameters): trains the model using the **rounds** variable which controls how many rounds of training are preformed and the **data** variable (an array) which contains the desired training data.
-* **mkvar** (2 parameters: **name** and **value**): creates a new variable with the name **name** and the value **value**.
-* **setvar** (2 parameters: **name** and **value**): updates an existing user-defined variable with the name **name** changes its contents to **value**.
+
 * **output** (0 parameters): runs the model.
 * **log** (1 parameter: **value**): logs **value**. **value** can be of any data type.
-* **end** (0 parameters): ends the program.
 * **set** (2 parameters: **name** and **value**): updates an existing builtin variable (width, depth, rounds, calibration, round, or data) to contain **value**
+* **mkvar** (2 parameters: **name** and **value**): creates a new variable with the name **name** and the value **value**.
+* **setvar** (2 parameters: **name** and **value**): updates an existing user-defined variable with the name **name** changes its contents to **value**.
+* **end** (0 parameters): ends the program.
+* **>** (3 parameters: **a**, **b**, and **c**):  sets **a** to **+** if **b** > **c**. Otherwise, it sets **a** to **-**.
+* **<** (3 parameters: **a**, **b**, and **c**):  sets **a** to **+** if **b** < **c**. Otherwise, it sets **a** to **-**.
+* **=** (3 parameters: **a**, **b**, and **c**):  sets **a** to **+** if **b** = **c**. Otherwise, it sets **a** to **-**.
+* **!** (1 parameter: **bool**):  sets **bool** to **+** if **bool** = **-**, or to **-** if **bool** = **+**
+
+IMPORTANT: **>**, **<**, **=**, and **!** do not return values, and thus cannot be used in boolean expressions. They instead store their result in a variable. (More details on where the data is stored can be found in the above list.)
 
 *Part 2: Data Types*
 
@@ -54,3 +61,19 @@ Builtin variables, as you probably know from part 1, can be set using the **set*
 **calibration** (number): a number multiplied by the result from the neural net (before final bias is applied)
 
 **finalBias** (number): a number subtracted from the final result (after calibration is applied)
+
+*Part 4: Control Flow*
+
+The control flow in DSL can be implemented using the two keywords **if** and **while**. An if statement looks like this:
+
+**if [boolean expression]**\
+**[code]**\
+**endif**
+
+If the boolean expression (either **+**, **-**, or **getvar [variableName]**) evaluates to **+**, the code inside the if statement (between **if** and **endif**) is executed. Otherwise, it is not and the if statement is skipped over.
+
+While loops are similar. They look almost identical to the if statement, but execute the code over and over until the boolean expression evaluates to **-**. Like this:
+
+**while [boolean expression]**\
+**[code]**\
+**endwhile**
