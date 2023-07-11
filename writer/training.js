@@ -76,10 +76,10 @@ const buildModel = (base, useGPU) => {
         return buildModelWithoutGPU(base);
     }
 };
-const train = () => {
+const train = async () => {
     let fragment = prompt("Enter fragment: ");
     let length = Number(prompt("Enter length: "));
-    let mode = prompt("Specify mode (1/2/3/4): ");
+    let mode = prompt("Specify mode (1/2/3/4/5): ");
     let useGPU = prompt("Use GPU? (y/n): ") == "y";
     console.log("useGPU set to " + useGPU);
     let models = [hiddenLayers];
@@ -119,6 +119,36 @@ const train = () => {
                     matchFound = true;
                     models = [currentModel];
                 }
+            }
+            break;
+        }
+        if(mode == "5") {
+            const dataset = JSON.parse(readFileSync(process.cwd() + "/ldsm/dataset.json"));
+            for(let i = 0; i < dataset.length; i++) {
+                const trainingData = dataset[i];
+                console.log("trainingData: " + trainingData);
+                let matchFound = false;
+                let currentModel = models[0];
+                while(!matchFound) {
+                    let mistake = false;
+                    for(let i = 0; i < trainingData.length; i++) {
+                        let result = write(trainingData[i].fragment, trainingData[i].length);
+                        if(result != trainingData[i].desired) {
+                            mistake = true;
+                        }
+                    }
+                    if(!mistake) {
+                        matchFound = true;
+                        models = [currentModel];
+                    }
+                    currentModel = buildModel(models[0], useGPU);
+                    setCustomModel(currentModel);
+                }
+                console.log("Saving current file state, do not exit...");
+                await writeFile(process.cwd() + "/ldsm/model.json", JSON.stringify(models[0]), "utf8", (err) => {
+                    if (err) throw err;
+                    console.log("Model saved. Training step " + (i + 1) + "/" + dataset.length + " completed.");
+                });
             }
             break;
         }
